@@ -2,7 +2,7 @@
 
 ## Why isn't Atuin recording commands in my IDE's terminal?
 
-IDEs like PyCharm, VS Code, and others often start non-interactive shells that don't source your shell configuration. This means Atuin's hooks never get installed.
+IDEs like RustRover, PyCharm, VS Code, and others often start non-interactive shells that don't source your shell configuration. This means Atuin's hooks never get installed.
 
 To fix this, configure your IDE to start an interactive shell (for example, `/bin/bash -i` instead of `/bin/bash`).
 
@@ -65,7 +65,7 @@ This will delete your account, and all history from the remote server. It won't 
 
 We don't currently have a password reset system. As long as you're still logged in on at least one machine, it's safe to delete and re-create your account.
 
-## I'm not using sync — why is Atuin connecting to api.atuin.sh?
+## I'm not using sync — why is Atuin connecting to `api.atuin.sh`?
 
 That's the update checker. At most once per hour, Atuin checks `https://api.atuin.sh` for the latest release, and lets you know if you're out of date. It's a version lookup — no history or personal data is involved.
 
