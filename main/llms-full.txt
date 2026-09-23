@@ -210,13 +210,13 @@ cargo install atuin --locked
 brew install atuin
 ```
 
-Atuin is also available in [MacPorts](https://ports.macports.org/port/atuin/)
+Atuin is also available in [MacPorts](https://ports.macports.org/port/atuin/):
 
 ```
 sudo port install atuin
 ```
 
-Atuin is also installable using [mise](https://github.com/jdx/mise)
+Atuin is also installable using [mise](https://github.com/jdx/mise):
 
 ```
 mise use -g atuin@latest
@@ -228,22 +228,10 @@ This repository is a flake, and can be installed using `nix profile`:
 nix profile install "github:atuinsh/atuin"
 ```
 
-Atuin is also available in [nixpkgs](https://github.com/NixOS/nixpkgs):
-
-```
-nix-env -f '<nixpkgs>' -iA atuin
-```
-
 Atuin is available in the Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/atuin/):
 
 ```
 pacman -S atuin
-```
-
-Atuin is available in the Void Linux [repository](https://github.com/void-linux/void-packages/tree/master/srcpkgs/atuin):
-
-```
-sudo xbps-install atuin
 ```
 
 Atuin is available in the Termux package repository:
@@ -580,7 +568,7 @@ The filter mode narrows the set of history Atuin searches. Cycle through the mod
 | workspace        | Only history from anywhere in the current git repository                     |
 | session-preload  | The current session, plus all global history from before the session started |
 
-`workspace` mode requires [`workspaces = true`](https://docs.atuin.sh/configuration/config/#workspaces). Atuin skips it when you aren't inside a git repository.
+Atuin skips `workspace` mode when you aren't inside a git repository or when [`workspaces = false`](https://docs.atuin.sh/configuration/config/#workspaces).
 
 To change which mode searches start in, set [`filter_mode`](https://docs.atuin.sh/configuration/config/#filter_mode). To remove modes from the ctrl-r rotation entirely, set [`search.filters`](https://docs.atuin.sh/configuration/config/#filters). The up arrow can start in a different mode than ctrl-r — see [`filter_mode_shell_up_key_binding`](https://docs.atuin.sh/configuration/config/#filter_mode_shell_up_key_binding).
 
@@ -847,7 +835,7 @@ For support tiers, see [Supported platforms](https://docs.atuin.sh/support/index
 atuin hook install claude-code
 ```
 
-This adds hook entries to `~/.claude/settings.json`. Claude Code calls `atuin hook claude-code` on each `Bash` tool use, passing the event as JSON on `stdin`.
+This adds hook entries to `~/.claude/settings.json`. Claude Code calls `atuin hook claude-code` on each Bash tool use matching `^Bash$`, passing the event as JSON on `stdin`.
 
 ### Codex
 
@@ -1145,11 +1133,11 @@ atuin history dedup --dry-run --before "2025-01-01" --dupkeep 1
 atuin history dedup --before "2025-01-01" --dupkeep 1
 ```
 
-| Flag             | Description                                             |
-| ---------------- | ------------------------------------------------------- |
-| `--dry-run`/`-n` | List duplicates without deleting                        |
-| `--before`/`-b`  | Only consider entries added before this date (required) |
-| `--dupkeep`      | Number of recent duplicates to keep                     |
+| Flag             | Description                                                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `--dry-run`/`-n` | List duplicates without deleting                                                                                                |
+| `--before`/`-b`  | Only consider entries added before this date, read in the configured `timezone` unless it carries an explicit offset (required) |
+| `--dupkeep`      | Number of recent duplicates to keep                                                                                             |
 
 ## Deleting your sync account
 
@@ -1173,127 +1161,6 @@ This removes your account and all synchronized history from the server. **Local 
 | Remove undecryptable local store records | `atuin store verify` then `atuin store purge`       |
 | Remove duplicates                        | `atuin history dedup --before <date> --dupkeep <n>` |
 | Delete sync account                      | `atuin account delete`                              |
-
-# Syncing dotfiles
-
-While Atuin started as a tool for syncing and searching shell history, we're building tooling for syncing dotfiles across machines, and making them easier to work with.
-
-At the moment, Atuin supports managing and syncing of shell aliases and environment variables - with more coming soon.
-
-Dotfiles syncing is available on zsh, bash, fish, xonsh, and PowerShell. See [Supported platforms](https://docs.atuin.sh/support/index.md) for the full support matrix.
-
-Note: Atuin handles your configuration internally, so once it's installed you no longer need to edit your config files manually.
-
-## Required config
-
-Once Atuin is set up and installed, the following is required in your config file (`~/.config/atuin/config.toml`)
-
-```
-[dotfiles]
-enabled = true
-```
-
-In a later release, this will be enabled by default.
-
-## Usage
-
-### Aliases
-
-After creating or deleting an alias, remember to restart your shell!
-
-#### Creating an alias
-
-```
-atuin dotfiles alias set NAME 'COMMAND'
-```
-
-For example, to alias `k` to be `kubectl`
-
-```
-atuin dotfiles alias set k 'kubectl'
-```
-
-or to alias `ll` to be `ls -lah`
-
-```
-atuin dotfiles alias set ll 'ls -lah'
-```
-
-#### Deleting an alias
-
-Delete an alias with:
-
-```
-atuin dotfiles alias delete NAME
-```
-
-For example, to delete the above alias `k`:
-
-```
-atuin dotfiles alias delete k
-```
-
-#### Listing aliases
-
-You can list all aliases with:
-
-```
-atuin dotfiles alias list
-```
-
-### Env vars
-
-After creating or deleting an env var, remember to restart your shell!
-
-#### Creating a var
-
-```
-atuin dotfiles var set NAME 'value'
-```
-
-For example, to set `FOO` to be `bar`
-
-```
-atuin dotfiles var set FOO 'bar'
-```
-
-Vars are exported by default, but you can create a shell var like so
-
-```
-atuin dotfiles var set -n foo 'bar'
-```
-
-#### Deleting a var
-
-Delete a var with:
-
-```
-atuin dotfiles var delete NAME
-```
-
-For example, to delete the above var `FOO`:
-
-```
-atuin dotfiles var delete FOO
-```
-
-#### Listing vars
-
-You can list all vars with:
-
-```
-atuin dotfiles var list
-```
-
-### Syncing and backing up dotfiles
-
-If you have [set up sync](https://docs.atuin.sh/guide/sync/index.md), then running
-
-```
-atuin sync
-```
-
-will back up your config to the server and sync it across machines.
 
 # Theming
 
@@ -1611,7 +1478,7 @@ inline_height_shell_up_key_binding = 10
 
 ### `workspaces`
 
-Default: `false`
+Default: `true`
 
 This flag enables a pseudo filter-mode named "workspace": the filter is automatically activated when you're in a git repository.
 
@@ -2109,34 +1976,6 @@ common_prefix = [
 ```
 
 Configures commands that should be totally stripped from stats calculations. For example, 'sudo' should be ignored.
-
-## `dotfiles`
-
-Default: `false`
-
-To enable sync of shell aliases between hosts.
-
-Add the new section to the bottom of your config file, for every machine you use Atuin with
-
-```
-[dotfiles]
-enabled = true
-```
-
-Manage aliases using the command line options
-
-```
-# Alias 'k' to 'kubectl'
-atuin dotfiles alias set k kubectl
-
-# List all aliases
-atuin dotfiles alias list
-
-# Delete an alias
-atuin dotfiles alias delete k
-```
-
-After setting an alias, you will either need to restart your shell or source the init file for the change to take effect
 
 ## keys
 
@@ -3353,11 +3192,11 @@ Create an account on the configured sync server.
 atuin account register -u <USERNAME> -e <EMAIL> -p <PASSWORD>
 ```
 
-| Flag              | Description                                                                   |
-| ----------------- | ----------------------------------------------------------------------------- |
-| `--username`/`-u` | Your desired username. Must be unique, alphanumerics and hyphens only         |
-| `--email`/`-e`    | Used only for important notifications, such as security issues                |
-| `--password`/`-p` | Omit this and Atuin asks for it instead, keeping it out of your shell history |
+| Flag              | Description                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--username`/`-u` | Your desired username. Must be unique, alphanumerics and hyphens only                                           |
+| `--email`/`-e`    | Used only for important notifications, such as security issues                                                  |
+| `--password`/`-p` | Omit this and Atuin asks for it instead, keeping it out of your shell history. Pass `-` to read it from `stdin` |
 
 Registering logs you in and generates your encryption key. Save the key — see [`atuin key`](https://docs.atuin.sh/reference/sync/#key).
 
@@ -3372,11 +3211,19 @@ atuin account login -u <USERNAME>
 | Flag               | Description                                                  |
 | ------------------ | ------------------------------------------------------------ |
 | `--username`/`-u`  | Your username                                                |
-| `--password`/`-p`  | Omit and Atuin asks for it                                   |
+| `--password`/`-p`  | Omit and Atuin asks for it. Pass `-` to read it from `stdin` |
 | `--key`/`-k`       | Your encryption key. Omit and Atuin asks for it              |
 | `--totp-code`/`-t` | Your two-factor authentication code, if your account has 2FA |
 
 Omitting `--password` and `--key` is recommended: Atuin asks for both, so neither ends up in your shell history.
+
+For unattended logins, set `ATUIN_PASSWORD` and `ATUIN_ENCRYPTION_KEY`, or pipe the password in with `--password -`. Unlike flag values, neither shows up in the process list:
+
+```
+ATUIN_ENCRYPTION_KEY="$KEY" atuin login -u <USERNAME> --password - < password.txt
+```
+
+`atuin register` also reads `ATUIN_PASSWORD`.
 
 ### `atuin account logout`
 
@@ -3655,7 +3502,6 @@ Supported shells: `zsh`, `bash`, `fish`, `nu`, `xonsh`, `powershell`. See [Suppo
 
 - **Hooks** that record each command, its exit code, and its duration. See [Shell Integration](https://docs.atuin.sh/guide/shell-integration/index.md).
 - **Key bindings** for `Ctrl`+`R` and the `Up` arrow, and `?` for [Atuin AI](https://docs.atuin.sh/ai/introduction/index.md).
-- **Dotfiles**, if [enabled](https://docs.atuin.sh/configuration/config/#dotfiles) — your synced aliases and environment variables are defined here.
 
 ## Flags
 
@@ -3936,6 +3782,7 @@ Atuin search supports wildcards, with either the `*` or `%` character. By defaul
 | `--exclude-exit`     | Exclude an exit code; repeat to exclude all listed codes (default: none)                                                                                                         |
 | `--before`           | Only include commands run before this time (default: none)                                                                                                                       |
 | `--after`            | Only include commands run after this time (default: none)                                                                                                                        |
+| `--timezone`/`--tz`  | Timezone to display times in and to read `--before`/`--after` in (default: configured `timezone`)                                                                                |
 | `--interactive`/`-i` | Open the interactive search UI (default: false)                                                                                                                                  |
 | `--human`            | Use human-readable formatting for the timestamp and duration (default: false)                                                                                                    |
 | `--limit`            | Limit the number of results (default: none)                                                                                                                                      |
@@ -5447,9 +5294,9 @@ Captured output isn't limited to Atuin AI: external tools like Claude Code and C
 
 # MCP Server
 
-Atuin ships with a built-in [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server, giving external AI tools like Claude Code and Cursor access to your shell history. Your agent can look up commands you've run before, check whether they succeeded, and — with [output capture](https://docs.atuin.sh/ai/command-output/index.md) set up — read what they printed.
+Atuin ships with a built-in [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server, giving external AI tools like Claude Code and Cursor access to your shell history. Your agent can look up commands you've run before, check whether they succeeded, and — with [output capture](https://docs.atuin.sh/ai/command-output/index.md) set up — read what they printed, or search that output for something it remembers seeing.
 
-The server exposes the same history tools that [Atuin AI](https://docs.atuin.sh/ai/introduction/index.md) uses. Both tools are read-only: nothing can modify or delete your history, and all data stays on your machine.
+The server exposes the same history tools that [Atuin AI](https://docs.atuin.sh/ai/introduction/index.md) uses, plus output search. All tools are read-only: nothing can modify or delete your history, and all data stays on your machine.
 
 ## Starting the server
 
@@ -5501,6 +5348,14 @@ History search reads the Atuin database directly, so it works without any extra 
 Fetches the captured terminal output of a previous command, identified by a history ID from `atuin_history` results. The agent can fetch specific line ranges, so it doesn't need to read a huge log to find the error at the end.
 
 Output capture requires the [daemon](https://docs.atuin.sh/reference/daemon/index.md) and [pty-proxy](https://docs.atuin.sh/reference/pty-proxy/index.md) to be running — see [Reading Command Output](https://docs.atuin.sh/ai/command-output/index.md) for setup. Without them, the tool responds with an error explaining that no output is available.
+
+### `atuin_output_search`
+
+Searches the captured output of every command, for when the agent knows *what* was printed but not *which* command printed it — an error message, a version string, a hostname. It's the same search as `atuin output search`: terms are matched as whole words and all of them must appear.
+
+Each result gives the command and its history metadata, followed by the output lines around each match with their line numbers, so the agent can pass the history ID and a line range to `atuin_output` to read more.
+
+Like `atuin_output`, this needs output capture set up and the daemon running.
 
 Session scope
 
